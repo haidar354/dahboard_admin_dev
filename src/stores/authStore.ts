@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 
 import type { ApiResponse } from '@/types/api/response'
 import type { Role, User } from '@/types/models/user'
+import { $publicAPI, $rootAPI } from '@/utils/api'
+import { showToast } from '@/utils/toaster'
 
 export const useAuthStore = defineStore('authStore', {
   state: () => ({
@@ -15,7 +17,7 @@ export const useAuthStore = defineStore('authStore', {
     abilities: [] as any[],
     adminAbilities: [] as any[],
     schoolModeAbilities: [] as any[],
-    userData: {} as User, // Initialize userData as an empty object
+    userData: {} as User,
     permissions: [] as string[],
     roles: [] as Role[],
 
@@ -28,84 +30,80 @@ export const useAuthStore = defineStore('authStore', {
   }),
 
   getters: {
-    getIsLogin: state => {
-      return state.isLogin
-    },
-    getUser: state => {
-      return state.userData
-    },
-    getPermissions: state => {
-      return state.permissions
-    },
+    getIsLogin: state => state.isLogin,
+    getUser: state => state.userData,
+    getPermissions: state => state.permissions,
   },
 
   actions: {
     async login(payload: any) {
       try {
-        await $publicAPI<ApiResponse<any>>('auth/login', {
+        const res = await $publicAPI<ApiResponse<any>>('platform/auth/login', {
           method: 'POST',
           body: {
             email: payload.email,
             password: payload.password,
           },
-        }).then(async (res: any) => {
-          const { tokenType, expiresIn, accessToken, refreshToken } = res.data
-          const { permissions, roles, ...userProfile } = res.data.user
-
-          await this.setCredentials({
-            token_type: tokenType,
-            expires_in: expiresIn,
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          })
-
-          await this.setUser(userProfile)
-          await this.setIsLogin(true)
-          this.roles = roles
-          this.setAbilities(permissions)
-
-          return res
         })
+
+        const { tokenType, expiresIn, accessToken, refreshToken } = res.data
+        const { permissions, roles, ...userProfile } = res.data.user
+
+        await this.setCredentials({
+          token_type: tokenType,
+          expires_in: expiresIn,
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        })
+
+        await this.setUser(userProfile)
+        await this.setIsLogin(true)
+        this.roles = roles
+        this.setAbilities(permissions)
+
+        return res
       }
       catch (error: any) {
         showToast(
-          error?.response?._data?.message || 'Terjadi Kesalahan',
+          error?.data?.message || 'Terjadi Kesalahan',
           'error',
         )
         throw error
       }
     },
+
     async refreshToken() {
       try {
-        await $rootAPI<ApiResponse<any>>('auth/refresh-token', {
+        const res = await $rootAPI<ApiResponse<any>>('auth/refresh-token', {
           method: 'POST',
-        }).then(async (res: any) => {
-          const { tokenType, expiresIn, accessToken, refreshToken } = res.data
-
-          await this.setCredentials({
-            token_type: tokenType,
-            expires_in: expiresIn,
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          })
-
-          await this.setUser(res.data.user)
-          this.setAbilities(res.data.permissions)
-
-          return res
         })
+
+        const { tokenType, expiresIn, accessToken, refreshToken } = res.data
+
+        await this.setCredentials({
+          token_type: tokenType,
+          expires_in: expiresIn,
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        })
+
+        await this.setUser(res.data.user)
+        this.setAbilities(res.data.permissions)
+
+        return res
       }
       catch (error: any) {
         showToast(
-          error?.response?._data?.message || 'Terjadi Kesalahan',
+          error?.data?.message || 'Terjadi Kesalahan',
           'error',
         )
         throw error
       }
     },
+
     async register(payload: any) {
       try {
-        await $publicAPI<ApiResponse<any>>('auth/register', {
+        const res = await $publicAPI<ApiResponse<any>>('auth/register', {
           method: 'POST',
           body: {
             name: payload.name,
@@ -113,25 +111,25 @@ export const useAuthStore = defineStore('authStore', {
             password: payload.password,
             password_confirmation: payload.passwordConfirmation,
           },
-        }).then(async (res: any) => {
-          const { tokenType, expiresIn, accessToken, refreshToken } = res.data
-
-          await this.setCredentials({
-            token_type: tokenType,
-            expires_in: expiresIn,
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          })
-
-          await this.setUser(res.data.user)
-          this.setAbilities(res.data.permissions)
-
-          return res
         })
+
+        const { tokenType, expiresIn, accessToken, refreshToken } = res.data
+
+        await this.setCredentials({
+          token_type: tokenType,
+          expires_in: expiresIn,
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        })
+
+        await this.setUser(res.data.user)
+        this.setAbilities(res.data.permissions)
+
+        return res
       }
       catch (error: any) {
         showToast(
-          error?.response?._data?.message || 'Terjadi Kesalahan',
+          error?.data?.message || 'Terjadi Kesalahan',
           'error',
         )
         throw error
@@ -139,49 +137,46 @@ export const useAuthStore = defineStore('authStore', {
     },
 
     async resendCode(email: string) {
-      return await $publicAPI<ApiResponse<any>>(
-        'auth/request-new-verify-email',
-        {
+      try {
+        const res = await $publicAPI<ApiResponse<any>>('auth/request-new-verify-email', {
           method: 'POST',
           body: { email },
-        },
-      )
-        .then((res: any) => {
-          showToast(
-            res.data.message || 'Berhasil mengirimkan kode verifikasi',
-            'success',
-          )
+        })
 
-          return res
-        })
-        .catch((error: any) => {
-          showToast(
-            error?.response?._data?.message || 'Terjadi Kesalahan',
-            'error',
-          )
-          throw error
-        })
+        showToast(
+          res.data.message || 'Berhasil mengirimkan kode verifikasi',
+          'success',
+        )
+
+        return res
+      }
+      catch (error: any) {
+        showToast(
+          error?.data?.message || 'Terjadi Kesalahan',
+          'error',
+        )
+        throw error
+      }
     },
 
     async verifyEmail(email: string, token: string) {
-      return await $publicAPI<ApiResponse<any>>('auth/verify-email', {
-        method: 'POST',
-        body: { email, token },
-      })
-        .then((res: any) => {
-          return res
+      try {
+        return await $publicAPI<ApiResponse<any>>('auth/verify-email', {
+          method: 'POST',
+          body: { email, token },
         })
-        .catch((error: any) => {
-          showToast(
-            error?.response?._data?.message || 'Terjadi Kesalahan',
-            'error',
-          )
-          throw error
-        })
+      }
+      catch (error: any) {
+        showToast(
+          error?.data?.message || 'Terjadi Kesalahan',
+          'error',
+        )
+        throw error
+      }
     },
 
     async getMe() {
-      return await $publicAPI<ApiResponse<User>>(
+      return await $rootAPI<ApiResponse<User>>(
         `auth/me?module_id=${import.meta.env.VITE_APPS_MODULE_ID}`,
         {
           method: 'GET',
@@ -190,30 +185,29 @@ export const useAuthStore = defineStore('authStore', {
     },
 
     async setIsLogin(isLogin: boolean) {
-      await Promise.all([(this.isLogin = isLogin)])
+      this.isLogin = isLogin
     },
 
     async setCredentials(credentials: any) {
-      await Promise.all([(this.credentials = credentials)])
+      this.credentials = credentials
     },
 
     async setUser(user: User) {
-      await Promise.all([(this.userData = user)])
+      this.userData = user
     },
 
     async setAbilities(permissions: any[]) {
-      const abilities: any
-        = permissions?.map((permission: any) => ({
-          action: 'manage',
-          subject: permission,
-        })) || []
+      const abilities: any = permissions?.map((permission: any) => ({
+        action: 'manage',
+        subject: permission,
+      })) || []
 
       abilities.push({
         action: 'manage',
         subject: 'default',
       })
 
-      await Promise.all([(this.abilities = abilities)])
+      this.abilities = abilities
     },
 
     unsetCredentials() {
@@ -226,11 +220,9 @@ export const useAuthStore = defineStore('authStore', {
     },
 
     async unsetAbilities() {
-      await Promise.all([
-        (this.abilities = []),
-        (this.adminAbilities = []),
-        (this.schoolModeAbilities = []),
-      ])
+      this.abilities = []
+      this.adminAbilities = []
+      this.schoolModeAbilities = []
     },
 
     async setBusinessUnitId(businessUnitId: string) {
@@ -238,22 +230,17 @@ export const useAuthStore = defineStore('authStore', {
     },
 
     async requestResetPassword(email: string) {
-      return new Promise((resolve, reject) => {
-        $publicAPI<ApiResponse<any>>('auth/request-reset-password', {
-          method: 'POST',
-          body: {
-            email,
-          },
-        })
-          .then(response => {
-            this.resetPasswordData.canResend = false
-            this.resetPasswordData.createdAt = new Date()
-            this.resetPasswordData.countdown = 60
-            this.startCountdown()
-            resolve(response)
-          })
-          .catch(reject)
+      const res = await $publicAPI<ApiResponse<any>>('auth/request-reset-password', {
+        method: 'POST',
+        body: { email },
       })
+
+      this.resetPasswordData.canResend = false
+      this.resetPasswordData.createdAt = new Date()
+      this.resetPasswordData.countdown = 60
+      this.startCountdown()
+
+      return res
     },
 
     startCountdown() {
@@ -261,40 +248,39 @@ export const useAuthStore = defineStore('authStore', {
 
       const interval = setInterval(() => {
         if (this.resetPasswordData.countdown > 0) {
-          this.resetPasswordData.countdown-- // Decrement the countdown value by 1 second
+          this.resetPasswordData.countdown--
         }
         else {
           this.resetPasswordData.countdown = 0
           this.resetPasswordData.canResend = true
-          clearInterval(interval) // Stop the countdown when it reaches 0
+          clearInterval(interval)
         }
       }, 1000)
     },
 
     async resetPassword(payload: any) {
-      return new Promise((resolve, reject) => {
-        $publicAPI<ApiResponse<any>>('auth/reset-password', {
-          method: 'POST',
-          body: payload,
-        })
-          .then(resolve)
-          .catch(reject)
+      return await $publicAPI<ApiResponse<any>>('auth/reset-password', {
+        method: 'POST',
+        body: payload,
       })
     },
 
     async logout() {
-      await $rootAPI('auth/logout', {
-        method: 'POST',
-        ignoreResponseError: true,
-      })
-      await Promise.all([
-        (this.isLogin = false),
-        (this.userData = {} as User),
-        (this.roles = []),
-        (this.permissions = []),
-        this.unsetCredentials(),
-        this.unsetAbilities(),
-      ])
+      try {
+        await $rootAPI('auth/logout', {
+          method: 'POST',
+        })
+      }
+      catch (error) {
+        console.error('Logout error:', error)
+      }
+
+      this.isLogin = false
+      this.userData = {} as User
+      this.roles = []
+      this.permissions = []
+      this.unsetCredentials()
+      await this.unsetAbilities()
     },
   },
   persist: true,

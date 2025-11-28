@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { avatarText } from '@/@core/utils/formatters'
+import { useAbility } from '@/plugins/casl/composables/useAbility'
 import { useAuthStore } from '@/stores/authStore'
 import { useBusinessUnitStore } from '@/stores/businessUnitStore'
 import { useOutletStore } from '@/stores/outletStore'

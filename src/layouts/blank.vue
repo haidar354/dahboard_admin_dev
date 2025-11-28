@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+import { useSkins } from '@core/composable/useSkins'
+import AppLoadingIndicator from '@/components/AppLoadingIndicator.vue'
+
 const { injectSkinClasses } = useSkins()
 
 // ℹ️ This will inject classes in body tag for accurate styling
@@ -10,10 +13,14 @@ const refLoadingIndicator = ref<any>(null)
 
 // watching if the fallback state is active and the refLoadingIndicator component is available
 watch([isFallbackStateActive, refLoadingIndicator], () => {
-  if (isFallbackStateActive.value && refLoadingIndicator.value)
+  // Pastikan refLoadingIndicator sudah ada dan memiliki method yang dibutuhkan
+  if (!refLoadingIndicator.value)
+    return
+
+  if (isFallbackStateActive.value && typeof refLoadingIndicator.value.fallbackHandle === 'function')
     refLoadingIndicator.value.fallbackHandle()
 
-  if (!isFallbackStateActive.value && refLoadingIndicator.value)
+  if (!isFallbackStateActive.value && typeof refLoadingIndicator.value.resolveHandle === 'function')
     refLoadingIndicator.value.resolveHandle()
 }, { immediate: true })
 // !SECTION

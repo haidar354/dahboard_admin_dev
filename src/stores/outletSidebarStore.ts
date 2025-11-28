@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-
 import type { RequestQuery } from '@/types/api/request'
 import type {
   ApiResponse,
@@ -9,6 +8,7 @@ import type {
   OutletForm,
   OutletFormErrors,
 } from '@/types/models/outlet'
+import { $orgAPI } from '@/utils/api'
 
 export const useOutletSidebarStore = defineStore('outletSidebarStore', {
   state: () => ({

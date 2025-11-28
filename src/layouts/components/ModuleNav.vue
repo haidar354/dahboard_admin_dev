@@ -8,6 +8,7 @@ import salesNavItems from '@/navigation/vertical/sales'
 import settingNavItems from '@/navigation/vertical/setting'
 import { useNavigationStore } from '@/stores/navigationStore'
 import type { Module } from '@/types/utils'
+import { MODULES } from '@/utils/modules'
 
 const route = useRoute()
 const router = useRouter()

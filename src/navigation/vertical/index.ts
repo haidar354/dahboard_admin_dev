@@ -1,5 +1,5 @@
-import inventory from './inventory'
+import admin from './admin'
 
 import type { VerticalNavItems } from '@layouts/types'
 
-export default [...inventory] as VerticalNavItems
+export default [...admin] as VerticalNavItems

@@ -1,9 +1,7 @@
 <!-- eslint-disable import/no-named-default -->
 <!-- ❗Errors in the form are set on line 60 -->
 <script setup lang="ts">
-import { VForm } from 'vuetify/components/VForm'
-
-import { useAuthStore } from '@/stores/authStore'
+import { useAbility } from '@casl/vue'
 import { useGenerateImageVariant } from '@core/composable/useGenerateImageVariant'
 import {
   default as authV2LoginIllustrationBorderedDark,
@@ -15,6 +13,11 @@ import authV2MaskDark from '@images/pages/misc-mask-dark.png'
 import authV2MaskLight from '@images/pages/misc-mask-light.png'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
+import { VForm } from 'vuetify/components/VForm'
+import { showToast } from '@/utils/toaster'
+import { useAuthStore } from '@/stores/authStore'
+import { emailValidator, requiredValidator } from '@/@core/utils/validators'
+import AppTextField from '@/@core/components/app-form-elements/AppTextField.vue'
 
 const authThemeImg = useGenerateImageVariant(authV2LoginIllustrationLight, authV2LoginIllustrationDark, authV2LoginIllustrationBorderedLight, authV2LoginIllustrationBorderedDark, true)
 
@@ -58,18 +61,13 @@ const login = async () => {
     showToast(`Selamat datang ${authStore?.userData?.name}`, 'success')
   }, 1000)
 
-  if (authStore?.userData?.businessUnitId) {
-    if (route.query.to) {
-      const redirect: string = route.query.to as string
+  if (route.query.to) {
+    const redirect: string = route.query.to as string
 
-      router.push(redirect)
-    }
-    else {
-      router.push({ name: 'dashboards' })
-    }
+    router.push(redirect)
   }
   else {
-    router.push({ name: 'business-unit-create', query: { from: 'login' } })
+    router.push({ name: 'dashboards' })
   }
 }
 

@@ -15,7 +15,9 @@ import type {
   BusinessUnitFormErrors,
   BusinessUnitQueryParams,
 } from '@/types/models/business-unit'
-
+import { $orgAPI, $rootAPI } from '@/utils/api'
+import { convertToFormBody } from '@/utils/common'
+import { showToast } from '@/utils/toaster'
 export const useBusinessUnitStore = defineStore('businessUnitStore', {
   state: () => ({
     paginateData: {} as PaginateData<BusinessUnit>,
@@ -151,31 +153,39 @@ export const useBusinessUnitStore = defineStore('businessUnitStore', {
     },
     async create() {
       this.isLoadingSubmit = true
-      await $orgAPI<ApiResponse<BusinessUnit>>('business-units', {
-        method: 'POST',
-        body: convertToFormBody(this.form),
-      })
-        .then(response => {
-          if (response.data) {
-            this.resetForm()
-            this.selectedBusinessUnit = response.data
-            useAuthStore().setBusinessUnitId(response.data.businessUnitId)
-          }
-        })
-        .catch(err => {
-          if (Object.keys(err.data.errors).length) {
-            this.formErrors = err.data.errors as BusinessUnitFormErrors
-            displayErrorMessages(err.data.errors)
-          }
-          else {
-            showToast(err.data?.message, 'error')
-          }
-          throw err
-        })
-        .finally(() => {
-          this.isLoadingSubmit = false
-        })
-    },
+  
+  try {
+    const response = await $orgAPI<ApiResponse<BusinessUnit>>('business-units', {
+      method: 'POST',
+      body: convertToFormBody(this.form),
+    })
+
+    if (response.data) {
+      this.resetForm()
+      this.selectedBusinessUnit = response.data
+      useAuthStore().setBusinessUnitId(response.data.businessUnitId)
+      showToast('Business unit berhasil dibuat', 'success')
+    }
+  } catch (err: any) {
+    // Handle validation errors
+    if (err?.data?.errors && Object.keys(err.data.errors).length) {
+      this.formErrors = err.data.errors as BusinessUnitFormErrors
+      displayErrorMessages(err.data.errors)
+    } 
+    // Handle general error message
+    else if (err?.data?.message) {
+      showToast(err.data.message, 'error')
+    }
+    // Handle unknown errors
+    else {
+      showToast('Terjadi kesalahan saat membuat business unit', 'error')
+    }
+    
+    throw err
+  } finally {
+    this.isLoadingSubmit = false
+  }
+},
     async update() {
       this.isLoadingSubmit = true
 

@@ -1,14 +1,16 @@
 import { AppContentLayoutNav, NavbarType } from '@layouts/enums'
 import { injectionKeyIsVerticalNavHovered } from '@layouts/symbols'
 import { _setDirAttr } from '@layouts/utils'
+import { useStorage } from '@vueuse/core' // Import useStorage dari @vueuse/core
 
 // ℹ️ We should not import themeConfig here but in urgency we are doing it for now
 import { layoutConfig } from '@themeConfig'
 
 export const namespaceConfig = (str: string) => `${layoutConfig.app.title}-${str}`
 
+// Ganti useCookie dengan useStorage dari @vueuse/core
 export const cookieRef = <T>(key: string, defaultValue: T) => {
-  return useCookie<T>(namespaceConfig(key), { default: () => defaultValue })
+  return useStorage<T>(namespaceConfig(key), defaultValue, localStorage)
 }
 
 export const useLayoutConfigStore = defineStore('layoutConfig', () => {

@@ -14,7 +14,10 @@ import {
 } from '@images/illustrations/outlet.png'
 import authV2MaskDark from '@images/pages/misc-mask-dark.png'
 import authV2MaskLight from '@images/pages/misc-mask-light.png'
-
+import AppTextField from '@/@core/components/app-form-elements/AppTextField.vue'
+import AppTextarea from '@/@core/components/app-form-elements/AppTextarea.vue'
+import { requiredValidator } from '@/@core/utils/validators'
+import { handleFileUpload } from '@/utils/common'
 const authThemeImg = useGenerateImageVariant(authV2LoginIllustrationLight, authV2LoginIllustrationDark, authV2LoginIllustrationBorderedLight, authV2LoginIllustrationBorderedDark, true)
 
 const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)

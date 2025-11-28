@@ -1,13 +1,14 @@
 <script lang="ts" setup>
+import { VerticalNavLayout } from '@layouts'
 import ModuleNav from './ModuleNav.vue'
 import UserProfileSideBar from '@/@layouts/components/UserProfileSideBar.vue'
+import AppLoadingIndicator from '@/components/AppLoadingIndicator.vue'
 import Footer from '@/layouts/components/Footer.vue'
 import NavBarNotifications from '@/layouts/components/NavBarNotifications.vue'
 import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue'
 import UserProfile from '@/layouts/components/UserProfile.vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useNavigationStore } from '@/stores/navigationStore'
-import { VerticalNavLayout } from '@layouts'
 
 const router = useRouter()
 
@@ -55,8 +56,15 @@ const { navigation } = storeToRefs(navigationStore)
     <!-- 👉 navbar -->
     <template #navbar="{ toggleVerticalOverlayNavActive }">
       <div class="d-flex h-100 align-center">
-        <IconBtn id="vertical-nav-toggle-btn" class="ms-n3 d-lg-none" @click="toggleVerticalOverlayNavActive(true)">
-          <VIcon size="26" icon="tabler-menu-2" />
+        <IconBtn
+          id="vertical-nav-toggle-btn"
+          class="ms-n3 d-lg-none"
+          @click="toggleVerticalOverlayNavActive(true)"
+        >
+          <VIcon
+            size="26"
+            icon="tabler-menu-2"
+          />
         </IconBtn>
         <ModuleNav />
 
@@ -83,7 +91,11 @@ const { navigation } = storeToRefs(navigationStore)
     <!-- 👉 Pages -->
     <slot name="router-view">
       <RouterView v-slot="{ Component }">
-        <Suspense :timeout="0" @fallback="isFallbackStateActive = true" @resolve="isFallbackStateActive = false">
+        <Suspense
+          :timeout="0"
+          @fallback="isFallbackStateActive = true"
+          @resolve="isFallbackStateActive = false"
+        >
           <Component :is="Component" />
         </Suspense>
       </RouterView>

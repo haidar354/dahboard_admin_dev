@@ -2,7 +2,7 @@
 import { type FetchResponse, ofetch } from 'ofetch'
 import { getAccessToken, getRefreshToken, unsetAllCredential } from '@/composables/auth/authentication'
 import { useAuthStore } from '@/stores/authStore'
-
+import { getBusinessUnitId } from '@/utils/tenant'
 let isRefreshing = false
 let failedQueue: Array<{ resolve: (token: string) => void; reject: (err: any) => void }> = []
 

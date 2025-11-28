@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/authStore'
 
 import type { ApiResponse } from '@/types/api/response'
 import type { Notification } from '@/types/models/notification'
+import { $rootAPI } from '@/utils/api'
 
 const dialog = ref(false)
 const authStore = useAuthStore()

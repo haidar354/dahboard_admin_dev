@@ -54,7 +54,7 @@ export default defineConfig({
 
     // Docs: https://github.com/antfu/unplugin-vue-components#unplugin-vue-components
     Components({
-      dirs: ['src/@core/components', 'src/views/demos', 'src/components'],
+      dirs: ['src/@core/components', 'src/views/demos', 'src/components', 'src/@core/components/dialogs'],
       dts: true,
       resolvers: [
         componentName => {

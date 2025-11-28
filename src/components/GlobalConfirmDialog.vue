@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useConfirmDialog } from '@/stores/confirmDialogStore'
-
+import DialogCloseBtn from '@core/components/DialogCloseBtn.vue'
 const deleteDialog = useConfirmDialog()
 
 const { isDialogVisible, isLoading, content, icon, title, subtitle } = storeToRefs(deleteDialog)
