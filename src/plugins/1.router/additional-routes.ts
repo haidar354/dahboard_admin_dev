@@ -12,7 +12,7 @@ export const redirects: RouteRecordRaw[] = [
       const isLogin = isUserLogin()
 
       if (isLogin)
-        return { name: 'dashboards' }
+        return { name: 'admin-dashboard' }
 
       return { name: 'login', query: to.query }
     },
